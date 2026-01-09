@@ -1,29 +1,130 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>HITwh Math</title>
-
-  <!-- Docsify 默认主题 -->
+  <title>HITwh 数学系资料共享 | Course Sharing</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="哈尔滨工业大学（威海）数学系课程资料整理与共享">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  
+  <!-- 1. 引入 Vue 风格主题 -->
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
-</head>
+  <!-- 引入 Katex 样式 (数学公式支持) -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"/>
+  <!-- 侧边栏折叠样式 -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/sidebar.min.css" />
 
+  <!-- 2. 自定义 CSS -->
+  <style>
+    :root {
+      /* 哈工大蓝 - 主色调 */
+      --theme-color: #003366; 
+      --text-color-base: #2c3e50;
+      --sidebar-width: 280px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+
+    /* 侧边栏优化 */
+    .sidebar {
+      background-color: #f7f9fc;
+      border-right: 1px solid #ebedf0;
+    }
+    .sidebar .app-name a {
+      color: var(--theme-color);
+      font-weight: bold;
+    }
+    .sidebar ul li.active > a {
+      border-right: 2px solid var(--theme-color);
+      color: var(--theme-color);
+      background-color: #e6f0fa;
+      font-weight: 600;
+    }
+
+    /* 内容区域优化 */
+    .markdown-section h1, .markdown-section h2 {
+      color: var(--theme-color);
+      font-weight: 600;
+    }
+    .markdown-section h1 {
+      border-bottom: 2px solid #eaecef;
+      padding-bottom: 0.3em;
+    }
+    
+    /* 引用块样式 */
+    .markdown-section blockquote {
+      border-left: 4px solid var(--theme-color);
+      background: #f8f9fa;
+      color: #666;
+    }
+    
+    /* 搜索框微调 */
+    .search {
+      margin-bottom: 20px;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+    }
+  </style>
+</head>
 <body>
-  <div id="app"></div>
+  <!-- 加载中提示 -->
+  <div id="app">正在加载 HITwh 数学资料库...</div>
 
   <script>
     window.$docsify = {
-      name: 'HITwh Math',
-      repo: 'X-huiii/HITwh-Math',
-      loadSidebar: true,
-      search: 'auto'
-    };
+      name: 'HITwh Math', // 侧边栏顶部的名称
+      repo: 'https://github.com/X-huiii/HITwh-Math', // 右上角 Github 角标
+      
+      // 基础功能配置
+      loadSidebar: true,    // 加载 _sidebar.md
+      loadNavbar: false,    // 如果需要顶部导航，设为 true 并创建 _navbar.md
+      coverpage: true,      // 加载封面 _coverpage.md
+      auto2top: true,       // 切换页面自动回到顶部
+      subMaxLevel: 3,       // 侧边栏生成的目录层级
+      
+      // 搜索插件配置
+      search: {
+        placeholder: '🔍 搜索 课程/试卷/笔记',
+        noData: '找不到结果',
+        depth: 6,
+        hideOtherSidebarContent: false,
+      },
+
+      // 字数统计
+      count: {
+        countable: true,
+        fontsize: '0.9em',
+        color: 'rgb(90,90,90)',
+        language: 'chinese'
+      },
+      
+      // 复制代码按钮
+      copyCode: {
+        buttonText: '复制',
+        errorText: '错误',
+        successText: '已复制'
+      },
+      
+      // 侧边栏折叠配置
+      sidebarDisplayLevel: 1, 
+    }
   </script>
 
-  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/zoom-image.min.js"></script>
+  <!-- 3. 核心脚本 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  
+  <!-- 插件集合 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-count/dist/countable.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
+
+  <!-- 数学公式支持 (Katex) -->
+  <script src="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/marked@4"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
 </body>
 </html>
