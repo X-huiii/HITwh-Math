@@ -1,130 +1,693 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title>HITwh 数学系资料共享 | Course Sharing</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="description" content="哈尔滨工业大学（威海）数学系课程资料整理与共享">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  
-  <!-- 1. 引入 Vue 风格主题 -->
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
-  <!-- 引入 Katex 样式 (数学公式支持) -->
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"/>
-  <!-- 侧边栏折叠样式 -->
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/sidebar.min.css" />
-
-  <!-- 2. 自定义 CSS -->
-  <style>
-    :root {
-      /* 哈工大蓝 - 主色调 */
-      --theme-color: #003366; 
-      --text-color-base: #2c3e50;
-      --sidebar-width: 280px;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
-    }
-
-    /* 侧边栏优化 */
-    .sidebar {
-      background-color: #f7f9fc;
-      border-right: 1px solid #ebedf0;
-    }
-    .sidebar .app-name a {
-      color: var(--theme-color);
-      font-weight: bold;
-    }
-    .sidebar ul li.active > a {
-      border-right: 2px solid var(--theme-color);
-      color: var(--theme-color);
-      background-color: #e6f0fa;
-      font-weight: 600;
-    }
-
-    /* 内容区域优化 */
-    .markdown-section h1, .markdown-section h2 {
-      color: var(--theme-color);
-      font-weight: 600;
-    }
-    .markdown-section h1 {
-      border-bottom: 2px solid #eaecef;
-      padding-bottom: 0.3em;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HITwh Math | 数学系资料共享</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    /* 引用块样式 */
-    .markdown-section blockquote {
-      border-left: 4px solid var(--theme-color);
-      background: #f8f9fa;
-      color: #666;
-    }
-    
-    /* 搜索框微调 */
-    .search {
-      margin-bottom: 20px;
-      padding: 10px;
-      border-bottom: 1px solid #eee;
-    }
-  </style>
+    <style>
+        :root {
+            --theme-color: #003366;       /* 哈工大深蓝 */
+            --theme-light: #e6f0fa;       /* 浅蓝背景 */
+            --accent-red: #c92b2b;        /* 红色：保研/重点 */
+            --accent-purple: #8e44ad;     /* 紫色：留学/教材 */
+            --accent-green: #27ae60;      /* 绿色：就业/笔记 */
+            --accent-gold: #f39c12;       /* 金色：考研 */
+            --text-main: #2c3e50;
+            --sidebar-width: 280px;
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: var(--font-stack);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            background-color: #fff;
+            overflow: hidden;
+        }
+
+        /* --- 侧边栏 --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #f7f9fc;
+            border-right: 1px solid #eaecef;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 20;
+            transition: transform 0.3s ease;
+        }
+
+        .app-name { padding: 25px 20px; background: #fff; text-align: center; border-bottom: 1px solid #eee; }
+        .app-name a { text-decoration: none; color: var(--theme-color); font-weight: 800; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        
+        .sidebar-nav { padding: 10px 0; margin: 0; padding-bottom: 50px; }
+        .nav-group-title { padding: 15px 25px 5px; font-size: 12px; font-weight: 700; color: #8590a6; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 10px; }
+        
+        .nav-item { display: block; padding: 10px 25px; color: #505d6b; text-decoration: none; font-size: 14px; cursor: pointer; border-right: 3px solid transparent; transition: all 0.2s; }
+        .nav-item:hover { color: var(--theme-color); background-color: rgba(0, 51, 102, 0.05); }
+        .nav-item.active { color: var(--theme-color); background-color: var(--theme-light); border-right-color: var(--theme-color); font-weight: 600; }
+        .nav-item i { width: 24px; text-align: center; margin-right: 5px; opacity: 0.8; }
+
+        /* --- 主内容区 --- */
+        .content { flex: 1; overflow-y: auto; position: relative; padding: 0; scroll-behavior: smooth; }
+        .page-view { display: none; max-width: 900px; margin: 0 auto; padding: 40px 60px; animation: fadeIn 0.3s ease; padding-bottom: 100px; }
+        .page-view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- 首页组件 --- */
+        .hero-section { text-align: center; padding: 60px 20px; border-bottom: 1px solid #eaecef; margin-bottom: 40px; background: linear-gradient(to bottom, #fff, #f8f9fa); }
+        .hero-title { font-size: 2.5rem; color: var(--theme-color); margin-bottom: 15px; letter-spacing: -1px; }
+        .hero-title strong { font-weight: 800; }
+        .btn { padding: 10px 25px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; border: none; font-size: 1rem; }
+        .btn-primary { background: var(--theme-color); color: white; box-shadow: 0 4px 6px rgba(0,51,102,0.2); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,51,102,0.3); }
+        
+        /* 投稿指南卡片 */
+        .guide-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 25px; margin-top: 30px; }
+        .guide-steps { display: flex; justify-content: space-between; margin-top: 20px; flex-wrap: wrap; gap: 20px; }
+        .step { flex: 1; min-width: 200px; text-align: center; padding: 15px; background: #f9f9f9; border-radius: 8px; }
+        .step-num { display: inline-block; width: 30px; height: 30px; background: var(--theme-color); color: white; border-radius: 50%; line-height: 30px; font-weight: bold; margin-bottom: 10px; }
+        
+        /* --- 资源卡片 --- */
+        h1 { border-bottom: 2px solid #eaecef; padding-bottom: 15px; margin-bottom: 30px; color: var(--theme-color); }
+        h3 { margin-top: 40px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: #333; }
+        
+        .resource-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 15px; background: #fff; display: flex; align-items: center; transition: all 0.2s; }
+        .resource-card:hover { border-color: var(--theme-color); box-shadow: 0 5px 15px rgba(0,0,0,0.05); transform: translateX(5px); }
+        .res-icon { font-size: 1.8rem; margin-right: 20px; width: 40px; text-align: center; }
+        .res-info { flex: 1; }
+        .res-title { font-weight: 700; font-size: 1.05rem; display: block; margin-bottom: 5px; color: #2c3e50; }
+        .res-meta { font-size: 0.85rem; color: #888; display: flex; gap: 10px; align-items: center; }
+        .tag { padding: 2px 6px; border-radius: 4px; font-size: 12px; background: #eee; }
+        .tag-sec { background: #ffebee; color: #c0392b; } /* 内部资料标签 */
+
+        /* 下载按钮 */
+        .download-btn { color: var(--theme-color); text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 6px 15px; border: 1px solid var(--theme-color); border-radius: 20px; transition: 0.2s; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+        .download-btn:hover { background: var(--theme-color); color: #fff; }
+        .download-btn.locked { border-color: #e74c3c; color: #e74c3c; }
+        .download-btn.locked:hover { background: #e74c3c; color: #fff; }
+
+        /* --- 贡献者墙 --- */
+        .contributors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; }
+        .user-card { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 20px; text-align: center; transition: transform 0.2s; position: relative; overflow: hidden; }
+        .user-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+        .user-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: var(--theme-color); }
+        .user-avatar { width: 60px; height: 60px; border-radius: 50%; background: #f0f2f5; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #999; }
+        .user-name { font-weight: bold; margin-bottom: 5px; color: #333; }
+        .user-contribution { font-size: 12px; color: #666; background: #f9f9f9; padding: 5px; border-radius: 4px; margin-top: 10px; text-align: left; }
+
+        /* --- 弹窗 --- */
+        #lock-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; }
+        .lock-box { background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 90%; max-width: 380px; }
+        .lock-input { width: 100%; padding: 12px; margin: 20px 0; border: 2px solid #eee; border-radius: 6px; font-size: 16px; text-align: center; }
+        .lock-input:focus { border-color: var(--theme-color); outline: none; }
+
+        /* 移动端适配 */
+        .mobile-menu-btn { display: none; position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: var(--theme-color); color: white; border-radius: 50%; text-align: center; line-height: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 100; cursor: pointer; }
+        @media screen and (max-width: 768px) {
+            .sidebar { position: absolute; height: 100%; transform: translateX(-100%); box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+            .sidebar.open { transform: translateX(0); }
+            .mobile-menu-btn { display: block; }
+            .page-view { padding: 20px; }
+            .hero-title { font-size: 1.8rem; }
+            .guide-steps { flex-direction: column; }
+        }
+    </style>
 </head>
 <body>
-  <!-- 加载中提示 -->
-  <div id="app">正在加载 HITwh 数学资料库...</div>
 
-  <script>
-    window.$docsify = {
-      name: 'HITwh Math', // 侧边栏顶部的名称
-      repo: 'https://github.com/X-huiii/HITwh-Math', // 右上角 Github 角标
-      
-      // 基础功能配置
-      loadSidebar: true,    // 加载 _sidebar.md
-      loadNavbar: false,    // 如果需要顶部导航，设为 true 并创建 _navbar.md
-      coverpage: true,      // 加载封面 _coverpage.md
-      auto2top: true,       // 切换页面自动回到顶部
-      subMaxLevel: 3,       // 侧边栏生成的目录层级
-      
-      // 搜索插件配置
-      search: {
-        placeholder: '🔍 搜索 课程/试卷/笔记',
-        noData: '找不到结果',
-        depth: 6,
-        hideOtherSidebarContent: false,
-      },
+    <!-- 侧边栏导航 -->
+    <aside class="sidebar" id="sidebar">
+        <div class="app-name"><a href="#"><i class="fas fa-graduation-cap"></i> HITwh Math</a></div>
+        <nav class="sidebar-nav">
+            <div class="nav-item active" onclick="switchPage('home', this)"><i class="fas fa-home"></i> 首页概览</div>
 
-      // 字数统计
-      count: {
-        countable: true,
-        fontsize: '0.9em',
-        color: 'rgb(90,90,90)',
-        language: 'chinese'
-      },
-      
-      // 复制代码按钮
-      copyCode: {
-        buttonText: '复制',
-        errorText: '错误',
-        successText: '已复制'
-      },
-      
-      // 侧边栏折叠配置
-      sidebarDisplayLevel: 1, 
-    }
-  </script>
+            <div class="nav-group-title">大一 Freshman</div>
+            <a class="nav-item" onclick="switchPage('course-ma-12', this)"><i class="fas fa-book"></i> 数学分析(1)(2)</a>
+            <a class="nav-item" onclick="switchPage('course-la', this)"><i class="fas fa-vector-square"></i> 高等代数</a>
+            <a class="nav-item" onclick="switchPage('course-geo', this)"><i class="fas fa-shapes"></i> 解析几何</a>
 
-  <!-- 3. 核心脚本 -->
-  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
-  
-  <!-- 插件集合 -->
-  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify-count/dist/countable.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
+            <div class="nav-group-title">大二 Sophomore</div>
+            <a class="nav-item" onclick="switchPage('course-ma-3', this)"><i class="fas fa-book-open"></i> 数学分析(3)</a>
+            <a class="nav-item" onclick="switchPage('course-ode', this)"><i class="fas fa-infinity"></i> 常微分方程</a>
+            <a class="nav-item" onclick="switchPage('course-complex', this)"><i class="fas fa-atom"></i> 复变函数</a>
+            <a class="nav-item" onclick="switchPage('course-real', this)"><i class="fas fa-chart-area"></i> 实变函数</a>
+            
+            <div class="nav-group-title">大三 Junior</div>
+            <a class="nav-item" onclick="switchPage('course-prob', this)"><i class="fas fa-dice"></i> 概率论</a>
+            <a class="nav-item" onclick="switchPage('course-num-approx', this)"><i class="fas fa-calculator"></i> 数值逼近</a>
+            <a class="nav-item" onclick="switchPage('course-num-alg', this)"><i class="fas fa-border-all"></i> 数值代数</a>
+            <a class="nav-item" onclick="switchPage('course-pde', this)"><i class="fas fa-wave-square"></i> 数学物理方程</a>
+            <a class="nav-item" onclick="switchPage('course-phy', this)"><i class="fas fa-bolt"></i> 大学物理X</a>
+            <a class="nav-item" onclick="switchPage('course-func', this)"><i class="fas fa-project-diagram"></i> 泛函分析基础</a>
+            <a class="nav-item" onclick="switchPage('course-stat', this)"><i class="fas fa-chart-bar"></i> 数理统计</a>
+            <a class="nav-item" onclick="switchPage('course-num-diff', this)"><i class="fas fa-microchip"></i> 微分方程数值方法</a>
+            <a class="nav-item" onclick="switchPage('course-info', this)"><i class="fas fa-network-wired"></i> 信息论基础</a>
 
-  <!-- 数学公式支持 (Katex) -->
-  <script src="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/marked@4"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
+            <div class="nav-group-title">大四 Senior</div>
+            <a class="nav-item" onclick="switchPage('course-thesis', this)"><i class="fas fa-pen-nib"></i> 毕业设计参考</a>
+
+            <div class="nav-group-title">其他课程 Other</div>
+            <a class="nav-item" onclick="switchPage('course-elective', this)"><i class="fas fa-list-ul"></i> 专业选修课</a>
+            <a class="nav-item" onclick="switchPage('course-exam', this)"><i class="fas fa-tasks"></i> 其他考查课</a>
+
+            <div class="nav-group-title">生涯 Career</div>
+            <a class="nav-item" onclick="switchPage('career-post', this)"><i class="fas fa-scroll"></i> 考研资料</a>
+            <a class="nav-item" onclick="switchPage('career-rec', this)"><i class="fas fa-medal"></i> 保研经验</a>
+            <a class="nav-item" onclick="switchPage('career-abroad', this)"><i class="fas fa-plane-departure"></i> 留学申请</a>
+            <a class="nav-item" onclick="switchPage('career-job', this)"><i class="fas fa-briefcase"></i> 就业/面经</a>
+
+            <div class="nav-group-title">社区 Community</div>
+            <a class="nav-item" onclick="switchPage('contributors', this)"><i class="fas fa-users"></i> 贡献者名单</a>
+        </nav>
+    </aside>
+    <div class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
+
+    <!-- 弹窗 -->
+    <div id="lock-modal">
+        <div class="lock-box">
+            <i class="fas fa-lock" style="color:var(--accent-red); font-size:40px; margin-bottom:20px;"></i>
+            <h3>需要访问权限</h3>
+            <p style="color:#666; margin:10px 0;">该资料为校内内部资料，仅供本系同学使用。</p>
+            <input type="password" id="password-input" class="lock-input" placeholder="输入密码 (默认: HITWH)">
+            <button class="btn btn-primary" onclick="verifyPassword()" style="width:100%; justify-content:center;">确认下载</button>
+            <p id="error-msg" style="color:red; font-size:12px; margin-top:10px; display:none;">密码错误</p>
+        </div>
+    </div>
+
+    <!-- 内容区域 -->
+    <main class="content">
+
+        <!-- 1. 首页：增加投稿指南 -->
+        <div id="page-home" class="page-view active">
+            <div class="hero-section">
+                <i class="fas fa-university" style="font-size: 60px; color: var(--theme-color); margin-bottom: 20px;"></i>
+                <h1 class="hero-title">HITwh <strong>Math</strong></h1>
+                <p style="color:#666; font-size:1.1rem;">哈尔滨工业大学（威海）数学系资料共享计划</p>
+                <div style="margin-top:25px;">
+                    <a onclick="switchPage('course-ma-12', document.querySelectorAll('.nav-item')[1])" class="btn btn-primary" style="color:white;"><i class="fas fa-search"></i> 查找资料</a>
+                </div>
+            </div>
+
+            <!-- 核心：如何上传资料 -->
+            <div class="guide-box">
+                <h2 style="margin-top:0; border:none; font-size:1.5rem;"><i class="fas fa-upload" style="color:var(--theme-color);"></i> 如何上传/贡献资料？</h2>
+                <p style="color:#555;">你的每一次分享，都可能成为下一届学弟学妹的“救命稻草”。我们非常欢迎大家贡献手写笔记、试题回忆或复习重点。</p>
+                
+                <div class="guide-steps">
+                    <div class="step">
+                        <span class="step-num">1</span>
+                        <h4>整理文件</h4>
+                        <p style="font-size:0.9rem; color:#666;">将你的资料整理好，支持 PDF/JPG/ZIP 格式。请尽量清晰命名，如“2023数分期末.pdf”。</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">2</span>
+                        <h4>发送邮件</h4>
+                        <p style="font-size:0.9rem; color:#666;">发送至官方邮箱：<br><a href="mailto:math-share@hitwh.edu.cn" style="color:var(--theme-color); font-weight:bold;">math-share@hitwh.edu.cn</a></p>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">3</span>
+                        <h4>等待更新</h4>
+                        <p style="font-size:0.9rem; color:#666;">管理员审核后会上传至网站，并在“贡献者名单”中署上你的名字！</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top:40px;"><i class="fas fa-history"></i> 最近更新</h3>
+            <div style="border-left:3px solid #eee; padding-left:20px;">
+                <p><span class="tag">2024-06-20</span> <strong>数学分析</strong>：更新了2023秋季期末试题回忆版</p>
+                <p><span class="tag">2024-06-18</span> <strong>常微分方程</strong>：新增第三章复习笔记 (By 学霸张)</p>
+                <p><span class="tag">2024-05-10</span> <strong>保研</strong>：上传了2021级保研去向统计表</p>
+            </div>
+        </div>
+
+        <!-- ================= 大一课程 ================= -->
+
+        <!-- 数学分析 (1)(2) -->
+        <div id="page-course-ma-12" class="page-view">
+            <h1>数学分析 (1)(2)</h1>
+            <p style="color:#666;">大一学年的核心基础课，微积分的严格理论体系。</p>
+            
+            <h3><i class="fas fa-book" style="color:var(--accent-purple);"></i> 经典教材 (直接下载)</h3>
+            <div class="resource-card">
+                <i class="fas fa-book-reader res-icon" style="color:var(--accent-purple);"></i>
+                <div class="res-info">
+                    <span class="res-title">《数学分析》（华东师大版）第四版</span>
+                    <span class="res-meta">国内最通用的数分教材，例题丰富，适合打基础。</span>
+                </div>
+                <a href="resources/ma/ecnu-book.pdf" target="_blank" class="download-btn">下载 PDF</a>
+            </div>
+            <div class="resource-card">
+                <i class="fas fa-book-reader res-icon" style="color:var(--accent-purple);"></i>
+                <div class="res-info">
+                    <span class="res-title">《数学分析原理》(Walter Rudin)</span>
+                    <span class="res-meta">"Baby Rudin"，观点现代，适合进阶阅读。</span>
+                </div>
+                <a href="resources/ma/rudin.pdf" target="_blank" class="download-btn">下载 PDF</a>
+            </div>
+
+            <h3><i class="fas fa-lock" style="color:var(--accent-red);"></i> 内部资料 (需密码)</h3>
+            <div class="resource-card">
+                <i class="fas fa-file-contract res-icon" style="color:var(--accent-red);"></i>
+                <div class="res-info">
+                    <span class="res-title">2023-2024 秋季学期 期末试题 (回忆版)</span>
+                    <span class="res-meta"><span class="tag tag-sec">内部</span> 上传者: 匿名 | 1.2MB</span>
+                </div>
+                <a href="#" onclick="lockCheck(event, 'resources/ma/2023-final.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+            <div class="resource-card">
+                <i class="fas fa-pen-fancy res-icon" style="color:var(--accent-green);"></i>
+                <div class="res-info">
+                    <span class="res-title">第一章：极限与连续 易错题总结</span>
+                    <span class="res-meta"><span class="tag tag-sec">笔记</span> By 20级学长</span>
+                </div>
+                <a href="#" onclick="lockCheck(event, 'resources/ma/notes-limit.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 高等代数 -->
+        <div id="page-course-la" class="page-view">
+            <h1>高等代数</h1>
+            <p style="color:#666;">线性空间、矩阵理论与几何的代数化。</p>
+
+            <h3><i class="fas fa-book" style="color:var(--accent-purple);"></i> 经典教材</h3>
+            <div class="resource-card">
+                <i class="fas fa-book res-icon" style="color:var(--accent-purple);"></i>
+                <div class="res-info">
+                    <span class="res-title">《高等代数》（北京大学数学系版）</span>
+                    <span class="res-meta">经典红皮书，体系严谨，考研必备。</span>
+                </div>
+                <a href="resources/la/pku-book.pdf" target="_blank" class="download-btn">下载 PDF</a>
+            </div>
+
+            <h3><i class="fas fa-lock" style="color:var(--accent-red);"></i> 内部资料</h3>
+            <div class="resource-card">
+                <i class="fas fa-file-alt res-icon" style="color:var(--accent-red);"></i>
+                <div class="res-info">
+                    <span class="res-title">高等代数(上) 期中考试模拟卷</span>
+                    <span class="res-meta"><span class="tag tag-sec">内部</span> 含行列式计算技巧</span>
+                </div>
+                <a href="#" onclick="lockCheck(event, 'resources/la/midterm-mock.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 解析几何 -->
+        <div id="page-course-geo" class="page-view">
+            <h1>解析几何</h1>
+            <h3><i class="fas fa-book" style="color:var(--accent-purple);"></i> 教材</h3>
+            <div class="resource-card">
+                <i class="fas fa-book res-icon" style="color:var(--accent-purple);"></i>
+                <div class="res-info"><span class="res-title">《解析几何》（丘维声）</span></div>
+                <a href="resources/geo/book.pdf" target="_blank" class="download-btn">下载</a>
+            </div>
+            <h3><i class="fas fa-lock" style="color:var(--accent-red);"></i> 资料</h3>
+            <div class="resource-card">
+                <i class="fas fa-file-pdf res-icon" style="color:var(--accent-red);"></i>
+                <div class="res-info"><span class="res-title">二次曲面分类表 & 作图技巧</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/geo/summary.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- ================= 大二课程 ================= -->
+
+        <!-- 数学分析 (3) -->
+        <div id="page-course-ma-3" class="page-view">
+            <h1>数学分析 (3)</h1>
+            <p>多元微积分、级数、含参变量积分。</p>
+            <h3><i class="fas fa-lock" style="color:var(--accent-red);"></i> 重点笔记</h3>
+            <div class="resource-card">
+                <i class="fas fa-star res-icon" style="color:var(--accent-gold);"></i>
+                <div class="res-info"><span class="res-title">傅里叶级数收敛性判别法总结</span><span class="res-meta">期末必考点梳理</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/ma3/fourier.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 常微分方程 -->
+        <div id="page-course-ode" class="page-view">
+            <h1>常微分方程 (ODE)</h1>
+            <h3><i class="fas fa-book" style="color:var(--accent-purple);"></i> 教材</h3>
+            <div class="resource-card">
+                <i class="fas fa-book res-icon" style="color:var(--accent-purple);"></i>
+                <div class="res-info"><span class="res-title">《常微分方程》（王高雄）第三版</span></div>
+                <a href="resources/ode/wang.pdf" target="_blank" class="download-btn">下载</a>
+            </div>
+            <h3><i class="fas fa-lock" style="color:var(--accent-red);"></i> 资料</h3>
+            <div class="resource-card">
+                <i class="fas fa-pen-fancy res-icon" style="color:var(--accent-green);"></i>
+                <div class="res-info"><span class="res-title">第三章：存在唯一性定理 证明思路梳理</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/ode/notes-chap3.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 复变函数 -->
+        <div id="page-course-complex" class="page-view">
+            <h1>复变函数</h1>
+            <h3><i class="fas fa-book" style="color:var(--accent-purple);"></i> 教材</h3>
+            <div class="resource-card">
+                <i class="fas fa-book res-icon" style="color:var(--accent-purple);"></i>
+                <div class="res-info"><span class="res-title">《复变函数论》（钟玉泉）</span></div>
+                <a href="resources/complex/zhong.pdf" target="_blank" class="download-btn">下载</a>
+            </div>
+            <h3><i class="fas fa-lock" style="color:var(--accent-red);"></i> 资料</h3>
+            <div class="resource-card">
+                <i class="fas fa-calculator res-icon" style="color:var(--accent-red);"></i>
+                <div class="res-info"><span class="res-title">留数计算 100 题 (含详解)</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/complex/residue-100.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 实变函数 -->
+        <div id="page-course-real" class="page-view">
+            <h1>实变函数</h1>
+            <p>测度论与勒贝格积分，大二最难课程之一。</p>
+            <h3><i class="fas fa-book" style="color:var(--accent-purple);"></i> 教材</h3>
+            <div class="resource-card">
+                <i class="fas fa-book res-icon" style="color:var(--accent-purple);"></i>
+                <div class="res-info"><span class="res-title">《实变函数论》（周民强）</span><span class="res-meta">北大教材，习题难度较大。</span></div>
+                <a href="resources/real/zhou.pdf" target="_blank" class="download-btn">下载</a>
+            </div>
+            <h3><i class="fas fa-lock" style="color:var(--accent-red);"></i> 资料</h3>
+            <div class="resource-card">
+                <i class="fas fa-skull res-icon" style="color:#000;"></i>
+                <div class="res-info"><span class="res-title">实变函数定理逻辑图谱 (防挂科必备)</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/real/map.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- ================= 大三课程 ================= -->
+
+        <!-- 概率论 -->
+        <div id="page-course-prob" class="page-view">
+            <h1>概率论</h1>
+            <h3><i class="fas fa-book" style="color:var(--accent-purple);"></i> 教材</h3>
+            <div class="resource-card">
+                <i class="fas fa-book res-icon" style="color:var(--accent-purple);"></i>
+                <div class="res-info"><span class="res-title">《概率论与数理统计》（茆诗松）</span></div>
+                <a href="resources/prob/mao.pdf" target="_blank" class="download-btn">下载</a>
+            </div>
+            <h3><i class="fas fa-lock" style="color:var(--accent-red);"></i> 资料</h3>
+            <div class="resource-card">
+                <i class="fas fa-file-alt res-icon" style="color:var(--accent-red);"></i>
+                <div class="res-info"><span class="res-title">往年概率论期末试题合集</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/prob/past-exams.zip')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 数值逼近 -->
+        <div id="page-course-num-approx" class="page-view">
+            <h1>数值逼近</h1>
+            <h3><i class="fas fa-code" style="color:var(--accent-green);"></i> 实验代码</h3>
+            <div class="resource-card">
+                <i class="fab fa-python res-icon" style="color:var(--accent-green);"></i>
+                <div class="res-info"><span class="res-title">Lagrange插值与样条插值 Python 实现</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/num/approx-code.zip')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 数值代数 -->
+        <div id="page-course-num-alg" class="page-view">
+            <h1>数值代数</h1>
+            <h3><i class="fas fa-file-code" style="color:var(--accent-green);"></i> 资料</h3>
+            <div class="resource-card">
+                <i class="fas fa-file-word res-icon" style="color:var(--accent-green);"></i>
+                <div class="res-info"><span class="res-title">Matlab 实验报告模板</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/num/report-template.doc')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 数学物理方程 -->
+        <div id="page-course-pde" class="page-view">
+            <h1>数学物理方程 (PDE)</h1>
+            <h3><i class="fas fa-book" style="color:var(--accent-purple);"></i> 教材</h3>
+            <div class="resource-card">
+                <i class="fas fa-book res-icon" style="color:var(--accent-purple);"></i>
+                <div class="res-info"><span class="res-title">《数学物理方程》（谷超豪）</span></div>
+                <a href="resources/pde/gu.pdf" target="_blank" class="download-btn">下载</a>
+            </div>
+            <h3><i class="fas fa-lock" style="color:var(--accent-red);"></i> 资料</h3>
+            <div class="resource-card">
+                <i class="fas fa-file-pdf res-icon" style="color:var(--accent-red);"></i>
+                <div class="res-info"><span class="res-title">分离变量法 典型例题解析</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/pde/separation-variables.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 大学物理X -->
+        <div id="page-course-phy" class="page-view">
+            <h1>大学物理 X</h1>
+            <div class="resource-card">
+                <i class="fas fa-atom res-icon" style="color:var(--theme-color);"></i>
+                <div class="res-info"><span class="res-title">大物X 期末公式纸 (Cheat Sheet)</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/phy/cheat-sheet.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 泛函分析基础 -->
+        <div id="page-course-func" class="page-view">
+            <h1>泛函分析基础</h1>
+            <h3><i class="fas fa-book" style="color:var(--accent-purple);"></i> 教材</h3>
+            <div class="resource-card">
+                <i class="fas fa-book res-icon" style="color:var(--accent-purple);"></i>
+                <div class="res-info"><span class="res-title">《泛函分析讲义》（张恭庆）</span></div>
+                <a href="resources/func/zhang.pdf" target="_blank" class="download-btn">下载</a>
+            </div>
+        </div>
+
+        <!-- 数理统计 -->
+        <div id="page-course-stat" class="page-view">
+            <h1>数理统计</h1>
+            <div class="resource-card">
+                <i class="fas fa-chart-bar res-icon" style="color:var(--accent-green);"></i>
+                <div class="res-info"><span class="res-title">最大似然估计 MLE 习题集</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/stat/mle-problems.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 微分方程数值方法 -->
+        <div id="page-course-num-diff" class="page-view">
+            <h1>微分方程数值方法</h1>
+            <p>有限差分法、有限元法入门。</p>
+            <div class="resource-card">
+                <i class="fas fa-code res-icon" style="color:var(--accent-green);"></i>
+                <div class="res-info"><span class="res-title">FDM 差分法 Python 示例代码</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/num/fdm-code.py')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 信息论基础 -->
+        <div id="page-course-info" class="page-view">
+            <h1>信息论基础</h1>
+            <h3><i class="fas fa-book" style="color:var(--accent-purple);"></i> 教材</h3>
+            <div class="resource-card">
+                <i class="fas fa-book res-icon" style="color:var(--accent-purple);"></i>
+                <div class="res-info"><span class="res-title">《Elements of Information Theory》(Cover)</span></div>
+                <a href="resources/info/cover.pdf" target="_blank" class="download-btn">下载</a>
+            </div>
+        </div>
+
+        <!-- ================= 大四课程 ================= -->
+        
+        <!-- 毕业设计 -->
+        <div id="page-course-thesis" class="page-view">
+            <h1>毕业设计参考</h1>
+            <h3><i class="fas fa-file-code" style="color:var(--theme-color);"></i> LaTeX 模板</h3>
+            <div class="resource-card">
+                <i class="fas fa-code res-icon" style="color:var(--theme-color);"></i>
+                <div class="res-info"><span class="res-title">HITwh 本科毕设 LaTeX 模板 (2024版)</span><span class="res-meta">符合教务处最新格式要求</span></div>
+                <a href="https://github.com/hitwh-thesis" target="_blank" class="download-btn">GitHub</a>
+            </div>
+            <h3><i class="fas fa-award" style="color:var(--accent-gold);"></i> 优秀论文</h3>
+            <div class="resource-card">
+                <i class="fas fa-file-pdf res-icon" style="color:var(--accent-gold);"></i>
+                <div class="res-info"><span class="res-title">历年优秀本科毕设题目列表</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/thesis/best-papers.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- ================= 其他课程 ================= -->
+        
+        <div id="page-course-elective" class="page-view">
+            <h1>专业选修课</h1>
+            <p>组合数学、图论、运筹学等。</p>
+            <div class="resource-card">
+                <i class="fas fa-file-alt res-icon" style="color:var(--theme-color);"></i>
+                <div class="res-info"><span class="res-title">运筹学 期末复习重点</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/elective/or-notes.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+        
+        <div id="page-course-exam" class="page-view">
+            <h1>其他考查课</h1>
+            <p>数学软件、Matlab编程等。</p>
+            <div class="resource-card">
+                <i class="fas fa-laptop-code res-icon" style="color:var(--theme-color);"></i>
+                <div class="res-info"><span class="res-title">数学软件 Maple 实验指导书</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/exam/maple-guide.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- ================= 生涯导航 ================= -->
+        
+        <!-- 考研 -->
+        <div id="page-career-post" class="page-view">
+            <h1 style="color:var(--accent-gold);">考研资料</h1>
+            <p>包含数学专业考研及跨考相关资料。</p>
+             <div class="resource-card">
+                <i class="fas fa-bookmark res-icon" style="color:var(--accent-gold);"></i>
+                <div class="res-info"><span class="res-title">北大数学系考研真题合集 (2010-2022)</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/postgrad/pku-math-papers.zip')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+            <div class="resource-card">
+                <i class="fas fa-globe res-icon" style="color:var(--accent-gold);"></i>
+                <div class="res-info"><span class="res-title">考研英语/政治 电子书资源</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/postgrad/english-politics.zip')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 保研 -->
+        <div id="page-career-rec" class="page-view">
+            <h1 style="color:var(--accent-red);">保研经验</h1>
+            <div class="resource-card">
+                <i class="fas fa-table res-icon" style="color:var(--accent-red);"></i>
+                <div class="res-info"><span class="res-title">综合测评加分细则计算表 (Excel)</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/rec/score-calc.xlsx')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+            <div class="resource-card">
+                <i class="fas fa-university res-icon" style="color:var(--accent-red);"></i>
+                <div class="res-info"><span class="res-title">夏令营/预推免 院校投递清单</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/rec/uni-list.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 留学 -->
+        <div id="page-career-abroad" class="page-view">
+            <h1 style="color:var(--accent-purple);">留学申请</h1>
+            <div class="resource-card">
+                <i class="fas fa-file-word res-icon" style="color:var(--accent-purple);"></i>
+                <div class="res-info"><span class="res-title">学术简历 (CV) LaTeX 模板</span><span class="res-meta">针对数学/CS申请优化</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/abroad/cv-template.zip')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 就业 -->
+        <div id="page-career-job" class="page-view">
+            <h1 style="color:var(--accent-green);">就业 & 实习</h1>
+            <div class="resource-card">
+                <i class="fas fa-code res-icon" style="color:var(--accent-green);"></i>
+                <div class="res-info"><span class="res-title">LeetCode Hot 100 题解 (Python/C++)</span><span class="res-meta">算法岗/开发岗面试必刷</span></div>
+                <a href="#" onclick="lockCheck(event, 'resources/job/leetcode-100.pdf')" class="download-btn locked"><i class="fas fa-lock" style="font-size:12px;"></i> 下载</a>
+            </div>
+        </div>
+
+        <!-- 贡献者墙 -->
+        <div id="page-contributors" class="page-view">
+            <h1 style="text-align:center; border:none;">Hall of Fame</h1>
+            <p style="text-align:center; color:#666;">感谢每一位为 HITwh 数学系大家庭添砖加瓦的同学</p>
+            
+            <div class="contributors-grid">
+                <div class="user-card">
+                    <div class="user-avatar"><img src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" alt="avatar"></div>
+                    <div class="user-name">王大伟</div>
+                    <span class="tag tag-sec" style="background:#fce4e4; color:#c92b2b;">保研 - 北大直博</span>
+                    <div class="user-contribution">贡献：数学分析学霸笔记</div>
+                </div>
+                <div class="user-card">
+                    <div class="user-avatar"><img src="https://api.dicebear.com/7.x/miniavs/svg?seed=2" alt="avatar"></div>
+                    <div class="user-name">李雪</div>
+                    <span class="tag tag-sec" style="background:#e8f5e9; color:#27ae60;">Offer - 华为</span>
+                    <div class="user-contribution">贡献：Python 实验报告</div>
+                </div>
+                <div class="user-card">
+                    <div class="user-avatar"><img src="https://api.dicebear.com/7.x/miniavs/svg?seed=3" alt="avatar"></div>
+                    <div class="user-name">Alex Chen</div>
+                    <span class="tag tag-sec" style="background:#f3e5f5; color:#8e44ad;">留学 - CMU</span>
+                    <div class="user-contribution">贡献：常微英文参考书</div>
+                </div>
+                <div class="user-card">
+                    <div class="user-avatar"><i class="fas fa-user"></i></div>
+                    <div class="user-name">匿名好心人</div>
+                    <span class="tag tag-sec">资料贡献</span>
+                    <div class="user-contribution">贡献：复变函数手写笔记</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // ================= 配置 =================
+        const SITE_PASSWORD = "HITWH"; 
+        // =======================================
+
+        let pendingUrl = '';
+
+        function switchPage(pageId, element) {
+            if(element) {
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                element.classList.add('active');
+            }
+            document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+            
+            let tid = 'page-' + pageId;
+            let el = document.getElementById(tid);
+            if (!el) el = document.getElementById('page-home'); // Fallback
+            
+            el.classList.add('active');
+            window.scrollTo(0,0); // 切换页面回顶部
+
+            if(window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // 密码拦截逻辑
+        function lockCheck(event, url) {
+            event.preventDefault();
+            const isLoggedIn = localStorage.getItem('hitwh_math_login');
+            
+            if (isLoggedIn === 'true') {
+                window.open(url, '_blank');
+            } else {
+                pendingUrl = url;
+                document.getElementById('lock-modal').style.display = 'flex';
+                document.getElementById('password-input').value = '';
+                document.getElementById('error-msg').style.display = 'none';
+                document.getElementById('password-input').focus();
+            }
+        }
+
+        function verifyPassword() {
+            const input = document.getElementById('password-input').value;
+            if (input === SITE_PASSWORD) {
+                localStorage.setItem('hitwh_math_login', 'true');
+                document.getElementById('lock-modal').style.display = 'none';
+                if (pendingUrl) {
+                    window.open(pendingUrl, '_blank');
+                    pendingUrl = '';
+                }
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        }
+
+        document.getElementById('password-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') verifyPassword();
+        });
+        
+        document.getElementById('lock-modal').addEventListener('click', function(e) {
+            if(e.target === this) this.style.display = 'none';
+        });
+    </script>
 </body>
 </html>
