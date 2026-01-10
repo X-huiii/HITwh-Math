@@ -57,9 +57,27 @@
 
         /* --- 主内容区 --- */
         .content { flex: 1; overflow-y: auto; position: relative; padding: 0; scroll-behavior: smooth; }
-        .page-view { display: none; max-width: 900px; margin: 0 auto; padding: 40px 60px; animation: fadeIn 0.3s ease; padding-bottom: 100px; }
+        .page-view { display: none; max-width: 900px; margin: 0 auto; padding: 40px 60px; animation: fadeIn 0.3s ease; }
         .page-view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- 评论区容器样式 --- */
+        .comments-section {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px 60px 60px 60px; /* 底部留白 */
+            border-top: 1px dashed #eaecef;
+            margin-top: 40px;
+        }
+        .comments-header {
+            font-size: 1.2rem;
+            color: var(--theme-color);
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
         /* --- 首页组件 --- */
         .hero-section { text-align: center; padding: 60px 20px; border-bottom: 1px solid #eaecef; margin-bottom: 40px; background: linear-gradient(to bottom, #fff, #f8f9fa); }
@@ -115,7 +133,8 @@
             .sidebar { position: absolute; height: 100%; transform: translateX(-100%); box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
             .sidebar.open { transform: translateX(0); }
             .mobile-menu-btn { display: block; }
-            .page-view { padding: 20px; }
+            .page-view { padding: 20px; padding-bottom: 20px; }
+            .comments-section { padding: 20px 20px 80px 20px; }
             .hero-title { font-size: 1.8rem; }
             .guide-steps { flex-direction: column; }
         }
@@ -619,6 +638,14 @@
             </div>
         </div>
 
+        <!-- ================= 评论区 (所有页面公用一个容器，JS控制切换) ================= -->
+        <div class="comments-section" id="comments-section">
+            <div class="comments-header"><i class="far fa-comments"></i> 课程讨论区 / 资料评价</div>
+            <div id="comments-container">
+                <!-- Giscus 将注入到这里 -->
+            </div>
+        </div>
+
     </main>
 
     <script>
@@ -629,29 +656,94 @@
         let pendingUrl = '';
 
         function switchPage(pageId, element) {
+            // 1. 切换侧边栏高亮
             if(element) {
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 element.classList.add('active');
             }
-            document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
             
+            // 2. 切换页面内容
+            document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
             let tid = 'page-' + pageId;
             let el = document.getElementById(tid);
-            if (!el) el = document.getElementById('page-home'); // Fallback
-            
+            if (!el) {
+                // 如果没有对应的页面ID，默认回首页
+                el = document.getElementById('page-home');
+                pageId = 'home';
+            }
             el.classList.add('active');
-            window.scrollTo(0,0); // 切换页面回顶部
+            window.scrollTo(0,0);
 
+            // 3. 移动端收起菜单
             if(window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('open');
             }
+
+            // 4. 更新评论区 (Giscus)
+            updateGiscus(pageId);
         }
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
         }
 
-        // 密码拦截逻辑
+        // ================= Giscus 评论区逻辑 =================
+        function updateGiscus(term) {
+            const container = document.getElementById('comments-container');
+            if(!container) return;
+
+            // 如果想在首页隐藏评论区，可以解开下面这行注释:
+            // if(term === 'home' || term === 'contributors') { document.getElementById('comments-section').style.display = 'none'; return; }
+            document.getElementById('comments-section').style.display = 'block';
+
+            const iframe = document.querySelector('iframe.giscus-frame');
+
+            if (!iframe) {
+                // 第一次加载：创建 Script 标签
+                const script = document.createElement('script');
+                script.src = "https://giscus.app/client.js";
+                
+                // -------------------------------------------------------------------
+                // 配置区域 (已填好)
+                // -------------------------------------------------------------------
+                script.setAttribute("data-repo", "X-huiii/HITwh-Math"); 
+                script.setAttribute("data-repo-id", "R_kgDOQ0JjzQ");
+                script.setAttribute("data-category", "General"); 
+                script.setAttribute("data-category-id", "DIC_kwDOQ0Jjzc4C0yT_");
+                // -------------------------------------------------------------------
+
+                // 强制使用手动具体映射 (Specific)，以适应单页应用 (SPA)
+                script.setAttribute("data-mapping", "specific"); 
+                script.setAttribute("data-term", term);          // 将当前页面ID作为话题
+                
+                script.setAttribute("data-strict", "0");
+                script.setAttribute("data-reactions-enabled", "1");
+                script.setAttribute("data-emit-metadata", "0");
+                script.setAttribute("data-input-position", "top");
+                script.setAttribute("data-theme", "light");
+                script.setAttribute("data-lang", "zh-CN");
+                script.setAttribute("crossorigin", "anonymous");
+                script.async = true;
+                container.appendChild(script);
+            } else {
+                // 已经加载过：通过 postMessage 发送指令切换话题
+                iframe.contentWindow.postMessage({
+                    giscus: {
+                        setConfig: {
+                            term: term
+                        }
+                    }
+                }, 'https://giscus.app');
+            }
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 默认加载首页的评论
+            updateGiscus('home');
+        });
+
+        // ================= 密码拦截逻辑 =================
         function lockCheck(event, url) {
             event.preventDefault();
             const isLoggedIn = localStorage.getItem('hitwh_math_login');
